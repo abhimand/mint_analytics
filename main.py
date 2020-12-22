@@ -13,4 +13,6 @@ df = df.sort_index()
 ### Graph credit and debit
 tr.graphBar(df)
 
+### Pie Chart of Categories
+
 
