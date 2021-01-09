@@ -57,7 +57,7 @@ def plotBar(ax, data, title):
     # annotate each bar with the value
     for p in ax.patches:
         s = np.sign(p.get_height())
-        print(s)
+        # print(s)
         ax.annotate(('$' + "%.2f" % p.get_height()), (p.get_x() + p.get_width() / 2., p.get_height() ),
             ha='center', va='center', fontsize=11, color='black', xytext=(0, s * 45), 
             rotation=90, arrowprops=dict(arrowstyle="->"), textcoords='offset points')
