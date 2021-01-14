@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 
 # maybe make a custom palette
 # palette ={"Reimbursement": "C0","Income": "C1","Shopping": "C2","Total": "k"}
+months =['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+years = ['2020', '2021']
 
 
 def analysis(dataframe): 
@@ -12,10 +14,8 @@ def analysis(dataframe):
     df_main.reset_index(inplace=True)
     df_main['Year'] = [d.year for d in df_main.Date]
     df_main['Month'] = [d.strftime('%b') for d in df_main.Date]
-    # months =['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-    months =['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
-    years = ['2020', '2021']
+
     for y in years: 
         for m in months:
             # create copy
@@ -41,8 +41,8 @@ def analysis(dataframe):
 
             # if empty, exit
             if df_copy.empty == False: 
-                df_copy.to_csv('/Users/abhi.mand/Documents/Programming/Visualization/mint_analytics/csv/' + m + '_' + y + '.csv', index=True)
-
+                # turn dataframe into csv file
+                df_copy.to_csv('/Users/abhi.mand/Documents/Programming/Visualization/mint_analytics/csv/' + m + ' ' + y + '.csv', index=True)
                 # plot
                 df_copy.reset_index(inplace=True)
                 fig, ax = plt.subplots(1, 1)
@@ -56,8 +56,11 @@ def analysis(dataframe):
                         ha='center', va='center', fontsize=11, color='black', xytext=(0, s * 45), 
                         rotation=90, arrowprops=dict(arrowstyle="->"), textcoords='offset points')
                 ax.set_title(m + ' ' + y)
-                fig.savefig('/Users/abhi.mand/Documents/Programming/Visualization/mint_analytics/plots/' + m + '_' + y + '_barplot.png')
+                fig.savefig('/Users/abhi.mand/Documents/Programming/Visualization/mint_analytics/plots/' + m + ' ' + y + '_barplot.png')
+                print(m + ' of year ' + y + ' is done.')
             else: 
                 print('We have no record of ' + m + ' of year ' + y + '.')
+    
+
 
 

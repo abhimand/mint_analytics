@@ -1,6 +1,14 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
+import glob as glob
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+
+
+months =['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+years = ['2020', '2021']
+index = ['Income', 'Reimbursement', 'Investments','Student Loan', 'Food & Dining', 'Groceries', 'Shopping', 'Travel', 'Business Services', 'Entertainment', 'Auto & Transport', 'Service & Parts','Taxes', 'Electronics & Software','Credit Total','Debit Total', 'Profit']
 
 sns.set_theme(style="darkgrid")
 
@@ -63,3 +71,72 @@ def plotBar(ax, data, title):
             rotation=90, arrowprops=dict(arrowstyle="->"), textcoords='offset points')
     ax.set_title(title)
     return ax
+def overviewCSV(): 
+    # get path of csv files
+    path = r'/Users/abhi.mand/Documents/Programming/Visualization/mint_analytics/csv' # use your path
+    # obtain all files that end with .csv
+    all_files = glob.glob(path + "/*.csv")
+    li = []
+    # keys = []
+
+    for filename in all_files:
+        # read csv
+        df_csv = pd.read_csv(filename, index_col=None, header=0)
+        # obtain credit and debit sums
+        credit_sum = df_csv.loc[df_csv['Transaction Type'] == 'credit', 'Amount'].sum()
+        debit_sum = df_csv.loc[df_csv['Transaction Type'] == 'debit', 'Amount'].sum()
+        profit = credit_sum - debit_sum
+        # create rows with debit and credit sums
+        new_row_credit = {'Transaction Type' : 'credit', 'Category':'Credit Total', 'Amount': credit_sum}
+        new_row_debit = {'Transaction Type' : 'debit', 'Category':'Debit Total', 'Amount': debit_sum}
+        new_row_profit = {'Transaction Type' : 'profit', 'Category':'Profit', 'Amount': profit}
+        # add new rows
+        df_csv = df_csv.append(new_row_credit, ignore_index=True)
+        df_csv = df_csv.append(new_row_debit, ignore_index=True)
+        df_csv = df_csv.append(new_row_profit, ignore_index=True)
+        # set category as index
+        df_csv = df_csv.set_index('Category')
+        # get file name
+        name = filename.split('csv/',1)[1].split('.csv')[0]
+        # rename category with file name [month_year]
+        df_csv.rename(columns={"Amount": name}, inplace=True)
+        # drop Transaction Type column
+        df_csv.drop(columns=['Transaction Type'], inplace=True)
+        li.append(df_csv)
+        # keys.append(name)
+
+    # combine all dataframes into one
+    df_combined = pd.concat(li, axis=1)
+
+    # create month and year column to reindex
+    column_list_reindex = []
+    for y in years: 
+        for m in months: 
+            column_list_reindex.append(m + ' ' + y)
+    # reindex both column and rows
+    df_combined = df_combined.reindex(index, columns=column_list_reindex)
+    # drop columns with no data
+    df_combined = df_combined.dropna(how='all', axis=1)
+
+    df_combined.to_csv('/Users/abhi.mand/Documents/Programming/Visualization/mint_analytics/csv/overview.csv', index=True)
+
+def trendLine(): 
+    filename = '/Users/abhi.mand/Documents/Programming/Visualization/mint_analytics/csv/overview.csv'
+    df_overview = pd.read_csv(filename, index_col='Unnamed: 0', header=0)
+
+    X_num_months = np.array([i + 1 for i,v in enumerate(df_overview.columns.values)]).reshape(-1, 1) # num of months
+    X_months = df_overview.columns.values.reshape(-1, 1) # months & year
+    Y = df_overview.loc['Profit'].values.reshape(-1, 1)
+
+    linear_regressor = LinearRegression()  # create object for the class
+    linear_regressor.fit(X_num_months, Y)  # perform linear regression
+    Y_pred = linear_regressor.predict(X_num_months)  # make predictions
+
+    plt.clf()
+    plt.scatter(X_num_months, Y)
+    plt.plot(X_num_months, Y_pred, color='red')
+
+    plt.title('Profit Trend')
+    plt.xlabel('Months')
+    plt.ylabel('Profit')
+    plt.savefig('/Users/abhi.mand/Documents/Programming/Visualization/mint_analytics/plots/trend_plot.png')

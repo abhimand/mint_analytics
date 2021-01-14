@@ -4,8 +4,6 @@ import overview as ov
 import months as mths
 import matplotlib as plt
 
-### TO_DO: Create a dummy file 
-
 ### Read Data
 pd.set_option('display.max_rows', None)
 df = pd.read_csv('/Users/abhi.mand/Documents/Programming/Data/transactions.csv', parse_dates=['Date'], index_col=['Date'])
@@ -31,9 +29,17 @@ df.loc[((df['Category'] == 'Amusement')),'Category'] = 'Entertainment'
 df.loc[((df['Category'] == 'Buy')),'Category'] = 'Investments'
 # Venmos that are credit or income = reimbursement
 df.loc[((df['Account Name'] == 'Venmo') & (df['Transaction Type'] == 'credit')),'Category'] = 'Reimbursement'
+# Drop transfers from Total Checking to Venmo
+df = df.drop(df[(df['Account Name'] == 'TOTAL CHECKING') & (df['Category'] == 'Transfer') & (df['Description'] == 'Venmo')].index)
 
 ### Graph credit and debit
 ov.graphBar(df)
 
 ### Months Analysis
 mths.analysis(df)
+
+### Overview Analysis
+ov.overviewCSV()
+
+### Trendline Analysis
+ov.trendLine()
